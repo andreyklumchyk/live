@@ -13,7 +13,7 @@ type Desigion struct {
 
 
 func makeDesigion(me *Individual, planet *Planet) {
-    var terrains = takeNearestTerrains(planet, me.pos, 1)
+    var terrains = takeNearestTerrains(planet, me.Pos, 1)
     var count = len(terrains)
     var bestDesigion Desigion
     var desigion Desigion
@@ -34,16 +34,16 @@ func desigionIndividual(me *Individual, other *Individual, count int) Desigion {
     var result Desigion
     // TODO: peace of ...
     if (isYoung(me) && isYoung(other) && count < 5 && //TODO: 5 - max terrain // ain population
-    me.food > 2/*TODO: could change*/) {
+    me.Food > 2/*TODO: could change*/) {
         result.needles = 10 + rand.Intn(10)
         result.action = "sex"
-    } else if (me.food < 0) {
+    } else if (me.Food < 0) {
         if (isChild(me)) {
             result.needles = 0
             result.action = "nothing"
         } else {
-            result.needles = 10 + rand.Intn(me.health - other.health) +
-            rand.Intn(other.age - me.age)
+            result.needles = 10 + rand.Intn(me.Health - other.Health) +
+            rand.Intn(other.Age - me.Age)
             result.action = "kill"
         }
     }
@@ -56,7 +56,7 @@ func desigionFood(me *Individual, terrain *Terrain) Desigion {
     if (terrain.food == 0) {
         result.needles = 0
     } else {
-        result.needles = me.max_food - me.food + terrain.food + rand.Intn(10)
+        result.needles = me.max_food - me.Food + terrain.food + rand.Intn(10)
     }
     result.action = "eat"
     return result
@@ -89,46 +89,46 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
 
     switch desigion.action {
     case "eat":
-        var food = me.max_food - me.food
+        var food = me.max_food - me.Food
         if (food > terrain.food) {
             food = terrain.food
         }
-        me.food += food
+        me.Food += food
         terrain.food -= food
     case "sex":
-        me.food -= 2 //TODO: could change
-        planet.individuals = append(planet.individuals,
-            createIndivid(len(planet.individuals), desigion.pos))
-        placeIndivid(&planet.individuals[len(planet.individuals) - 1], planet)
-        planet.population++;
+        me.Food -= 2 //TODO: could change
+        planet.Individuals = append(planet.Individuals,
+            createIndivid(len(planet.Individuals), desigion.pos))
+        placeIndivid(&planet.Individuals[len(planet.Individuals) - 1], planet)
+        planet.Population++;
     case "kill":
-        var newHealth = me.health - desigion.withWho.health -
-        (me.age - desigion.withWho.age) % 10 - rand.Intn(10)
+        var newHealth = me.Health - desigion.withWho.Health -
+        (me.Age - desigion.withWho.Age) % 10 - rand.Intn(10)
         if newHealth > 0 {
-            if (desigion.withWho.food > 0) {
-                terrain.food += desigion.withWho.food
+            if (desigion.withWho.Food > 0) {
+                terrain.food += desigion.withWho.Food
             }
-            terrain.food += desigion.withWho.health % 10
-            me.health = newHealth
-            desigion.withWho.health = 0
+            terrain.food += desigion.withWho.Health % 10
+            me.Health = newHealth
+            desigion.withWho.Health = 0
         } else {
-            if (me.food > 0) {
-                terrain.food += me.food
+            if (me.Food > 0) {
+                terrain.food += me.Food
             }
-            terrain.food += me.health % 10
-            me.health = 0
-            desigion.withWho.health = newHealth
+            terrain.food += me.Health % 10
+            me.Health = 0
+            desigion.withWho.Health = newHealth
         }
-        me.food -= 3
-        planet.population--;
+        me.Food -= 3
+        planet.Population--;
     }
 
-    if (me.health < 1) {
-        me.health = 0
-    } else if (me.food <= 0) {
-        me.health -= 5
-    } else if (me.health < 100) {
-        me.health += 1
+    if (me.Health < 1) {
+        me.Health = 0
+    } else if (me.Food <= 0) {
+        me.Health -= 5
+    } else if (me.Health < 100) {
+        me.Health += 1
     }
-    me.stat.actions[desigion.action] += 1
+    me.Stat.Actions[desigion.action] += 1
 }

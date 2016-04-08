@@ -11,18 +11,18 @@ func RunCycle(planet *Planet) {
     // adaptation for new location
     // go away from bad
     // want to live
-    var count = len(planet.individuals)
+    var count = len(planet.Individuals)
     var individual *Individual
     for i := 0; i < count; i++ {
-        individual = &planet.individuals[i]
-        if (individual.health == 0) {
+        individual = &planet.Individuals[i]
+        if (individual.Health == 0) {
             continue
         }
         makeDesigion(individual, planet)
         if (calculateDie(individual)) {
-            planet.population--
+            planet.Population--
             continue
         }
-        individual.age++
+        individual.Age++
     }
 }
