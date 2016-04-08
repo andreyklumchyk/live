@@ -1,12 +1,5 @@
 package live
 
-import (
-    "fmt"
-    "math/rand"
-    "strconv"
-    "time"
-)
-
 func RunCycle(planet *Planet) {
     // some action here ...
     // posible actions:
