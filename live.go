@@ -11,7 +11,7 @@ func main() {
     rand.Seed(int64(time.Now().Nanosecond()))
     var earth = live.CreatePlanet(2)
     var step = 0
-    for step <= 100 {
+    for step <= 200 {
         rand.Seed(int64(time.Now().Nanosecond()))
         live.RunCycle(&earth)
         if (earth.Population > 1000) {

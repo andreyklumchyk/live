@@ -20,7 +20,7 @@ func RunCycle(planet *Planet) {
         }
         makeDesigion(individual, planet)
         if (calculateDie(individual)) {
-            planet.Population--
+            dieIndivid(individual, planet)
             continue
         }
         individual.Age++

@@ -6,37 +6,37 @@ import (
 )
 
 type Pos struct {
-    x, y int
+    x, y uint32
 }
 
 type Gene struct {
-    id int
+    id uint32
     value []float32
     ability string
 }
 
 type Stat struct {
-    Actions map[string]int
+    Actions map[string]uint32
 }
 
 type Individual struct {
     name       string
-    Age        int
-    Health     int
-    Food       int
+    Age        uint32
+    Health     uint32
+    Food       int32
     Pos        Pos
-    index      int
+    index      uint32
 
-    middle_age int //TODO: move to DNA
-    max_food   int   //TODO: move to DNA
-    desigions  []string //TODO: move to DNA
+    middle_age uint32       //TODO: move to DNA
+    max_food   uint32       //TODO: move to DNA
+    desigions  []string  //TODO: move to DNA
     dna        []Gene
 
     Stat       Stat
 }
 
 
-func createIndivid(index int, pos Pos) Individual {
+func createIndivid(index uint32, pos Pos) Individual {
     var individual Individual
     individual.name = "i_" + strconv.Itoa(index)
     individual.Age = 0
@@ -47,7 +47,7 @@ func createIndivid(index int, pos Pos) Individual {
     individual.middle_age = 100
     // individual.dna = TODO: generate simple DNA
     individual.max_food = 3 + rand.Intn(3)
-    individual.Stat.Actions = make(map[string]int)
+    individual.Stat.Actions = make(map[string]uint32)
     return individual;
 }
 
@@ -83,4 +83,14 @@ func moveIndivid(individual *Individual, planet *Planet, new_pos Pos) {
         individual.name)
     individual.Pos = new_pos
     placeIndivid(individual, planet)
+}
+
+func dieIndivid(individual *Individual, planet *Planet) {
+    var terrain = &planet.grid[individual.Pos.x][individual.Pos.y]
+    if (individual.Food > 0) {
+        terrain.food += individual.Food
+    }
+    terrain.food += int32(individual.Health) / 10
+    individual.Health = 0
+    planet.Population--
 }
