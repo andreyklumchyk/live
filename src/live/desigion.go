@@ -5,7 +5,7 @@ import (
 )
 
 type Desigion struct {
-    needles int32
+    needles int
     action string
     pos Pos
     withWho *Individual
@@ -30,7 +30,7 @@ func makeDesigion(me *Individual, planet *Planet) {
     processDesigion(me, planet, bestDesigion)
 }
 
-func desigionIndividual(me *Individual, other *Individual, count uint32) Desigion {
+func desigionIndividual(me *Individual, other *Individual, count uint) Desigion {
     var result Desigion
     // TODO: peace of ...
     result.needles = 0
@@ -38,28 +38,19 @@ func desigionIndividual(me *Individual, other *Individual, count uint32) Desigio
 
     if (isYoung(me) && isYoung(other) && count < 5 && //TODO: 5 - max terrain // ain population
         me.Food > 2/*TODO: could change*/) {
-        result.needles = 10 + rand.Int31n(10)
+        result.needles = 10 + rand.Intn(10)
         result.action = "sex"
     } else if (me.Food < 0) {
         if (isYoung(me)) {
-            deltaHealth := int32(me.Health - other.Health)
-            if (deltaHealth > 0) {
-                deltaHealth = rand.Int31n(deltaHealth)
-            } else if (deltaHealth < 0) {
-                deltaHealth = -rand.Int31n(-deltaHealth)
-            }
-
             result.needles = 10 +
-                calculateDeltaRandom(int32(me.Health), int32(other.Health))
-                calculateDeltaRandom(i, i)
-            deltaHealth +
-                rand.Int31n(int32(other.Age - me.Age))
-
+                calculateDeltaRandom(int(me.Health), int(other.Health)) +
+                calculateDeltaRandom(int(other.Age), int(me.Age))
         }
 
         if (!isChild(me)) {
-            result.needles = 10 + rand.Int31n(int32(me.Health - other.Health)) +
-                rand.Int31n(int32(other.Age - me.Age))
+            result.needles = 10 +
+                calculateDeltaRandom(int(me.Health), int(other.Health)) +
+                rand.Intn(int(other.Age - me.Age))
             result.action = "kill"
         }
         // TODO: some conditions
@@ -74,7 +65,7 @@ func desigionFood(me *Individual, terrain *Terrain) Desigion {
     if (terrain.food <= 0) {
         result.needles = 0
     } else {
-        result.needles = int32(me.max_food) - me.Food + terrain.food + rand.Int31n(10)
+        result.needles = int(me.max_food) - me.Food + terrain.food + rand.Intn(10)
     }
     result.action = "eat"
     return result
@@ -83,7 +74,7 @@ func desigionFood(me *Individual, terrain *Terrain) Desigion {
 func calculateDesigion(me *Individual, terrain *Terrain) Desigion {
     var desigion Desigion
     var bestDesigion = Desigion{needles: 0, action: "nothing"}
-    var count = len(terrain.individuals)
+    var count = uint(len(terrain.individuals))
     if (len(terrain.individuals) > 0) {
         for _, individual := range terrain.individuals {
             if (individual.Health == 0) {
@@ -114,7 +105,7 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
 
     switch desigion.action {
     case "eat":
-        var food = int32(me.max_food) - me.Food
+        var food = int(me.max_food) - me.Food
         if (food > terrain.food) {
             food = terrain.food
         }
@@ -129,7 +120,9 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
         planet.Population++;
     case "kill":
         var newHealth = me.Health - desigion.withWho.Health -
-                (me.Age - desigion.withWho.Age) / 10 - rand.Intn(10)
+                uint(calculateDeltaDevided(
+                    int(me.Age), int(desigion.withWho.Age), 10)) -
+                uint(rand.Intn(10))
         if newHealth > 0 {
             dieIndivid(desigion.withWho, planet)
             me.Health = newHealth
@@ -150,12 +143,16 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
     }
 }
 
-func calculateDeltaRandom(value1 int32, value2 int32) int32 {
+func calculateDeltaRandom(value1 int, value2 int) int {
     delta := value1 - value2
     if (delta > 0) {
-        delta = rand.Int31n(delta)
+        delta = rand.Intn(delta)
     } else if (delta < 0) {
-        delta = -rand.Int31n(-delta)
+        delta = -rand.Intn(-delta)
     }
     return delta
+}
+
+func calculateDeltaDevided(value1 int, value2 int, devider int) int {
+    return (value1 - value2) / devider
 }

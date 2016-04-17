@@ -5,28 +5,28 @@ import (
 )
 
 type Location struct {
-    x uint32
-    y uint32
-    width uint32
-    height uint32
+    x int
+    y int
+    width int
+    height int
 }
 
 type Terrain struct {
-    food int32
+    food int
     individuals map[string]*Individual
     pos Pos
 }
 
 type Planet struct {
-    Width       uint32
-    Height      uint32
-    Population  uint32
+    Width       int
+    Height      int
+    Population  int
     grid        [][]Terrain
     Individuals []Individual
 }
 
 
-func CreatePlanet(population uint32) Planet {
+func CreatePlanet(population int) Planet {
     var planet Planet
     planet.Height = population * 10
     planet.Width = population * 10
@@ -39,7 +39,7 @@ func CreatePlanet(population uint32) Planet {
         for y := 0; y < planet.Height; y++ {
             terrain.individuals = make(map[string]*Individual)
             terrain.pos = Pos{x, y}
-            terrain.food = rand.Int31n(2)
+            terrain.food = rand.Intn(2)
             planet.grid[x][y] = terrain
         }
     }
@@ -55,7 +55,7 @@ func CreatePlanet(population uint32) Planet {
     return planet;
 }
 
-func takeNearestTerrains(planet *Planet, pos Pos, radius uint32) []*Terrain {
+func takeNearestTerrains(planet *Planet, pos Pos, radius int) []*Terrain {
     var minX = pos.x - radius
     var maxX = pos.x + radius
     var minY = pos.y - radius

@@ -6,29 +6,29 @@ import (
 )
 
 type Pos struct {
-    x, y uint32
+    x, y int
 }
 
 type Gene struct {
-    id uint32
+    id int
     value []float32
     ability string
 }
 
 type Stat struct {
-    Actions map[string]uint32
+    Actions map[string]int
 }
 
 type Individual struct {
     name       string
-    Age        uint32
-    Health     uint32
-    Food       int32
+    Age        uint
+    Health     uint
+    Food       int
     Pos        Pos
-    index      uint32
+    index      int
 
-    middle_age uint32       //TODO: move to DNA
-    max_food   uint32       //TODO: move to DNA
+    middle_age uint       //TODO: move to DNA
+    max_food   uint       //TODO: move to DNA
     desigions  []string  //TODO: move to DNA
     dna        []Gene
 
@@ -36,7 +36,7 @@ type Individual struct {
 }
 
 
-func createIndivid(index uint32, pos Pos) Individual {
+func createIndivid(index int, pos Pos) Individual {
     var individual Individual
     individual.name = "i_" + strconv.Itoa(index)
     individual.Age = 0
@@ -46,8 +46,8 @@ func createIndivid(index uint32, pos Pos) Individual {
     individual.index = index
     individual.middle_age = 100
     // individual.dna = TODO: generate simple DNA
-    individual.max_food = 3 + rand.Intn(3)
-    individual.Stat.Actions = make(map[string]uint32)
+    individual.max_food = 3 + uint(rand.Intn(3))
+    individual.Stat.Actions = make(map[string]int)
     return individual;
 }
 
@@ -70,7 +70,7 @@ func calculateDie(individual *Individual) bool {
     if (individual.Age < individual.middle_age) {
         return false
     }
-    return (individual.Age - individual.middle_age) > rand.Intn(individual.middle_age)
+    return (individual.Age - individual.middle_age) > uint(rand.Intn(int(individual.middle_age)))
 }
 
 func placeIndivid(individual *Individual, planet *Planet) {
@@ -90,7 +90,7 @@ func dieIndivid(individual *Individual, planet *Planet) {
     if (individual.Food > 0) {
         terrain.food += individual.Food
     }
-    terrain.food += int32(individual.Health) / 10
+    terrain.food += int(individual.Health) / 10
     individual.Health = 0
     planet.Population--
 }
