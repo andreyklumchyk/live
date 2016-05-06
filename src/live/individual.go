@@ -67,6 +67,9 @@ func calculateDie(individual *Individual) bool {
     if (individual.Health == 0) {
         return true
     }
+    if (individual.Food < -10) {
+        return true
+    }
     if (individual.Age < individual.middle_age) {
         return false
     }
@@ -88,9 +91,9 @@ func moveIndivid(individual *Individual, planet *Planet, new_pos Pos) {
 func dieIndivid(individual *Individual, planet *Planet) {
     var terrain = &planet.grid[individual.Pos.x][individual.Pos.y]
     if (individual.Food > 0) {
-        terrain.food += individual.Food
+        IncFood(planet, terrain, individual.Food)
     }
-    terrain.food += int(individual.Health) / 10
+    IncFood(planet, terrain, int(individual.Health) / 10)
     individual.Health = 0
     planet.Population--
 }

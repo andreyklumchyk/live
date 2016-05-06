@@ -28,6 +28,7 @@ func makeDesigion(me *Individual, planet *Planet) {
     }
 
     processDesigion(me, planet, bestDesigion)
+    planet.Stat.Actions[bestDesigion.action] += 1
 }
 
 func desigionIndividual(me *Individual, other *Individual, count uint) Desigion {
@@ -41,19 +42,14 @@ func desigionIndividual(me *Individual, other *Individual, count uint) Desigion 
         result.needles = 10 + rand.Intn(10)
         result.action = "sex"
     } else if (me.Food < 0) {
-        if (isYoung(me)) {
-            result.needles = 10 +
+        if (isYoung(me) ||
+            (isChild(me) && isChild(other)) ||
+            (isOld(me) && !isYoung(other))) {
+            result.needles = 10 - me.Food +
                 calculateDeltaRandom(int(me.Health), int(other.Health)) +
                 calculateDeltaRandom(int(other.Age), int(me.Age))
-        }
-
-        if (!isChild(me)) {
-            result.needles = 10 +
-                calculateDeltaRandom(int(me.Health), int(other.Health)) +
-                rand.Intn(int(other.Age - me.Age))
             result.action = "kill"
         }
-        // TODO: some conditions
     }
 
     result.withWho = other
@@ -77,7 +73,7 @@ func calculateDesigion(me *Individual, terrain *Terrain) Desigion {
     var count = uint(len(terrain.individuals))
     if (len(terrain.individuals) > 0) {
         for _, individual := range terrain.individuals {
-            if (individual.Health == 0) {
+            if (individual.index == me.index || individual.Health == 0) {
                 continue
             }
             desigion = desigionIndividual(me, individual, count)
@@ -110,7 +106,7 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
             food = terrain.food
         }
         me.Food += food
-        terrain.food -= food
+        IncFood(planet, terrain, -food)
     case "sex":
         me.Food -= 2 //TODO: could change
         desigion.withWho.Food -= 2
@@ -132,6 +128,8 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
             desigion.withWho.Health = newHealth
             me.Food -= 3
         }
+        desigion.withWho.Stat.Actions["killed"] += 1
+        planet.Stat.Actions["killed"] += 1
     }
 
     if (me.Health < 1) {

@@ -31,11 +31,13 @@ func main() {
         fmt.Println(
             " Health: ", individual.Health,
             " Position: ", individual.Pos,
-            " Age: ", individual.Age)
+            " Age: ", individual.Age,
+            " Food: ", individual.Food)
         fmt.Println("Actions: ", individual.Stat.Actions)
     }
     fmt.Println(
         " Width: ", earth.Width,
         " Height: ", earth.Height,
-        " Population: ", earth.Population)
+        " Population: ", earth.Population,
+        " Stat: ", earth.Stat)
 }

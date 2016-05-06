@@ -17,12 +17,18 @@ type Terrain struct {
     pos Pos
 }
 
+type GlobalStat struct {
+    Actions map[string]int
+    Food int
+}
+
 type Planet struct {
     Width       int
     Height      int
     Population  int
     grid        [][]Terrain
     Individuals []Individual
+    Stat        GlobalStat
 }
 
 
@@ -32,6 +38,7 @@ func CreatePlanet(population int) Planet {
     planet.Width = population * 10
     planet.grid = make([][]Terrain, planet.Width)
     planet.Individuals = make([]Individual, population)
+    planet.Stat.Actions = make(map[string]int)
 
     var terrain Terrain
     for x := 0; x < planet.Width; x++ {
@@ -39,7 +46,7 @@ func CreatePlanet(population int) Planet {
         for y := 0; y < planet.Height; y++ {
             terrain.individuals = make(map[string]*Individual)
             terrain.pos = Pos{x, y}
-            terrain.food = rand.Intn(2)
+            IncFood(&planet, &terrain, rand.Intn(2))
             planet.grid[x][y] = terrain
         }
     }
@@ -83,4 +90,9 @@ func takeNearestTerrains(planet *Planet, pos Pos, radius int) []*Terrain {
         }
     }
     return terrains
+}
+
+func IncFood(planet *Planet, terrain *Terrain, value int) {
+    terrain.food += value
+    planet.Stat.Food += value
 }
