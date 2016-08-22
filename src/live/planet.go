@@ -34,8 +34,8 @@ type Planet struct {
 
 func CreatePlanet(population int) Planet {
     var planet Planet
-    planet.Height = population * 10
-    planet.Width = population * 10
+    planet.Height = 5;//population * 10
+    planet.Width = 5;//population * 10
     planet.grid = make([][]Terrain, planet.Width)
     planet.Individuals = make([]Individual, population)
     planet.Stat.Actions = make(map[string]int)
@@ -46,7 +46,7 @@ func CreatePlanet(population int) Planet {
         for y := 0; y < planet.Height; y++ {
             terrain.individuals = make(map[string]*Individual)
             terrain.pos = Pos{x, y}
-            IncFood(&planet, &terrain, rand.Intn(2))
+            terrainIncFood(&planet, &terrain, rand.Intn(2))
             planet.grid[x][y] = terrain
         }
     }
@@ -92,7 +92,7 @@ func takeNearestTerrains(planet *Planet, pos Pos, radius int) []*Terrain {
     return terrains
 }
 
-func IncFood(planet *Planet, terrain *Terrain, value int) {
+func terrainIncFood(planet *Planet, terrain *Terrain, value int) {
     terrain.food += value
     planet.Stat.Food += value
 }

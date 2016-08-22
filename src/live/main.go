@@ -15,14 +15,15 @@ func RunCycle(planet *Planet) {
     var individual *Individual
     for i := 0; i < count; i++ {
         individual = &planet.Individuals[i]
-        if (individual.Health == 0) {
+        if (individual.IsDed) {
+            continue
+        }
+        if (calculateDie(individual)) {
+            dieIndivid(individual, planet)
+            planet.Stat.Actions["die"] += 1
             continue
         }
         makeDesigion(individual, planet)
-        if (calculateDie(individual)) {
-            dieIndivid(individual, planet)
-            continue
-        }
         individual.Age++
     }
 }

@@ -28,6 +28,7 @@ func makeDesigion(me *Individual, planet *Planet) {
     }
 
     processDesigion(me, planet, bestDesigion)
+    me.Stat.Actions[desigion.action] += 1
     planet.Stat.Actions[bestDesigion.action] += 1
 }
 
@@ -37,7 +38,7 @@ func desigionIndividual(me *Individual, other *Individual, count uint) Desigion 
     result.needles = 0
     result.action = "nothing"
 
-    if (isYoung(me) && isYoung(other) && count < 5 && //TODO: 5 - max terrain // ain population
+    if (isYoung(me) && isYoung(other) && count < 5 && //TODO: 5 - max terrain population
         me.Food > 2/*TODO: could change*/) {
         result.needles = 10 + rand.Intn(10)
         result.action = "sex"
@@ -61,7 +62,8 @@ func desigionFood(me *Individual, terrain *Terrain) Desigion {
     if (terrain.food <= 0) {
         result.needles = 0
     } else {
-        result.needles = int(me.max_food) - me.Food + terrain.food + rand.Intn(10)
+        result.needles = int(me.max_food) - me.Food +
+                         int(terrain.food / 10) + rand.Intn(10)
     }
     result.action = "eat"
     return result
@@ -73,7 +75,7 @@ func calculateDesigion(me *Individual, terrain *Terrain) Desigion {
     var count = uint(len(terrain.individuals))
     if (len(terrain.individuals) > 0) {
         for _, individual := range terrain.individuals {
-            if (individual.index == me.index || individual.Health == 0) {
+            if (individual.index == me.index || individual.IsDed) {
                 continue
             }
             desigion = desigionIndividual(me, individual, count)
@@ -97,7 +99,6 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
         moveIndivid(me, planet, desigion.pos)
         me.Stat.Actions["move"] += 1
     }
-    me.Stat.Actions[desigion.action] += 1
 
     switch desigion.action {
     case "eat":
@@ -106,7 +107,7 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
             food = terrain.food
         }
         me.Food += food
-        IncFood(planet, terrain, -food)
+        terrainIncFood(planet, terrain, -food)
     case "sex":
         me.Food -= 2 //TODO: could change
         desigion.withWho.Food -= 2
@@ -119,17 +120,21 @@ func processDesigion(me *Individual, planet *Planet, desigion Desigion) {
                 uint(calculateDeltaDevided(
                     int(me.Age), int(desigion.withWho.Age), 10)) -
                 uint(rand.Intn(10))
-        if newHealth > 0 {
+
+        if newHealth >= 0 {
             dieIndivid(desigion.withWho, planet)
             me.Health = newHealth
             me.Food -= 3
+            me.Stat.Actions["kill"] += 1
+            desigion.withWho.Stat.Actions["killed_by"] = me.index
         } else {
             dieIndivid(me, planet)
-            desigion.withWho.Health = newHealth
-            me.Food -= 3
+            desigion.withWho.Health = -newHealth
+            desigion.withWho.Food -= 3
+            me.Stat.Actions["killed_by"] = desigion.withWho.index
+            desigion.withWho.Stat.Actions["kill"] += 1
+            return
         }
-        desigion.withWho.Stat.Actions["killed"] += 1
-        planet.Stat.Actions["killed"] += 1
     }
 
     if (me.Health < 1) {

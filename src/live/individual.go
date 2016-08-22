@@ -26,6 +26,7 @@ type Individual struct {
     Food       int
     Pos        Pos
     index      int
+    IsDed      bool
 
     middle_age uint       //TODO: move to DNA
     max_food   uint       //TODO: move to DNA
@@ -44,6 +45,8 @@ func createIndivid(index int, pos Pos) Individual {
     individual.Food = 1
     individual.Pos = pos
     individual.index = index
+    individual.IsDed = false
+
     individual.middle_age = 100
     // individual.dna = TODO: generate simple DNA
     individual.max_food = 3 + uint(rand.Intn(3))
@@ -64,10 +67,7 @@ func isChild(individual *Individual) bool {
 }
 
 func calculateDie(individual *Individual) bool {
-    if (individual.Health == 0) {
-        return true
-    }
-    if (individual.Food < -10) {
+    if (individual.Health <= 0 || individual.Food < -10) {
         return true
     }
     if (individual.Age < individual.middle_age) {
@@ -91,9 +91,11 @@ func moveIndivid(individual *Individual, planet *Planet, new_pos Pos) {
 func dieIndivid(individual *Individual, planet *Planet) {
     var terrain = &planet.grid[individual.Pos.x][individual.Pos.y]
     if (individual.Food > 0) {
-        IncFood(planet, terrain, individual.Food)
+        terrainIncFood(planet, terrain, individual.Food)
     }
-    IncFood(planet, terrain, int(individual.Health) / 10)
+    terrainIncFood(planet, terrain, int(individual.Health) / 10)
     individual.Health = 0
+    individual.Food = 0
+    individual.IsDed = true
     planet.Population--
 }
